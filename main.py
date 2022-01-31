@@ -100,7 +100,7 @@ async def root(symbol: str, interval: str):
         connectgaps=True  # override default to connect the gaps
     ))
 
-    image = io.to_image(fig, 'png')
+    image = io.to_image(fig, 'png', 2000, 1000)
     base64_image = base64.b64encode(image)
     return {
         "success": True,
