@@ -105,7 +105,7 @@ async def root(symbol: str, interval: str):
     return {
         "success": True,
         "message": "Request Accepted",
-        "data": "data:image/png;base64," + str(base64_image)
+        "data": "data:image/png;base64," + base64_image
     }
 
 
