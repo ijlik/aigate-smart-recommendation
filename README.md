@@ -1,4 +1,4 @@
-##AiGate Smart Recommendation
+#AiGate Smart Recommendation#
 
 Smart recommendation to generate setting when user create robot in AiGate Dollar Cost-Averaging (DCA) or it call Compounding Strategy based on Machine Learning, Moving Average, Mirror Moving Average and VWAP (soon)
 
