@@ -28,6 +28,6 @@ Sample Output
 <br>
 <img src="https://raw.githubusercontent.com/ijlik/aigate-smart-recommendation/master/sample-data.png">
 <br>
-<img src="https://raw.githubusercontent.com/ijlik/aigate-smart-recommendation/master/sampel.png">
+<img src="https://raw.githubusercontent.com/ijlik/aigate-smart-recommendation/master/sampel-image.png">
 
 Hope this code can implement in AiGate ecosystem
