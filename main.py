@@ -101,11 +101,11 @@ async def root(symbol: str, interval: str):
     ))
 
     image = io.to_image(fig, 'png')
-    # base64_image = img2base64(image)
+    base64_image = base64.b64encode(image)
     return {
         "success": True,
         "message": "Request Accepted",
-        "data": image
+        "data": base64_image
     }
 
 
