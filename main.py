@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI
 import requests
 import numpy as np
@@ -20,10 +21,11 @@ async def root():
     }
 
 
-@app.get("/get_recommendation/{symbol}/{interval}")
-async def root(symbol: str, interval: str):
+@app.get("/get_recommendation/{symbol}/{interval}/{entry}")
+async def root(symbol: str, interval: str, entry: float):
     market = symbol
     tick_interval = interval
+    price = entry
     url = 'https://api.binance.com/api/v3/klines?symbol=' + market + '&interval=' + tick_interval
     data = requests.get(url).json()
     # open the file in the write mode
@@ -72,6 +74,20 @@ async def root(symbol: str, interval: str):
     df['ma_50'] = df.rolling(window=50)['Close'].mean()
     df['diff'] = df['ma_20'] - df['ma_50']
     df['mirror_ma_50'] = df['ma_20'] + df['diff']
+    df['market_bullish'] = df['ma_20'] > df['ma_50']
+    df['take_profit'] = df[['mirror_ma_50', 'ma_50']].max(axis=1)
+    df['buy_back'] = df[['mirror_ma_50', 'ma_50']].min(axis=1)
+    df['take_profit_percent'] = abs((df['take_profit'] - price) / price * 100)
+    df['buy_back_percent'] = abs((df['buy_back'] - price) / price * 100)
+    df['entry_price'] = df['ma_20']
+    df['earning_callback'] = df['take_profit'] - (0.1 * (df['take_profit'] - df['entry_price']))
+    df['buy_in_callback'] = df['buy_back'] + (0.1 * ((df['entry_price']) - df['buy_back']))
+    df['earning_callback_percent'] = abs((df['earning_callback'] - df['take_profit']) / df['take_profit'] * 100)
+    df['buy_in_callback_percent'] = abs((df['buy_in_callback'] - df['buy_back']) / df['buy_back'] * 100)
+
+    print(df[['ma_20', 'ma_50', 'diff', 'mirror_ma_50', 'market_bullish', 'take_profit', 'take_profit_percent', 'buy_back',
+              'buy_back_percent', 'entry_price', 'earning_callback', 'earning_callback_percent', 'buy_in_callback',
+              'buy_in_callback_percent']])
 
     fig = go.Figure(data=[go.Candlestick(x=df['CloseTime'],
                                          open=df['Open'],
@@ -101,17 +117,27 @@ async def root(symbol: str, interval: str):
     ))
 
     image = io.to_image(fig, 'png', 2000, 1000)
-    base64_image = str(base64.b64encode(image))
-    prefix = "data:image/png;base64,"
-    images = [
-        prefix,
-        base64_image
-    ]
-    image_result = ''.join(images)
+    base64_image = base64.b64encode(image)
+
     return {
         "success": True,
         "message": "Request Accepted",
-        "data": image_result
+        "data": {
+            # "is_bullish": df['market_bullish'].iloc[-1],
+            "entry_price": df['entry_price'].iloc[-1],
+            "take_profit": df['take_profit_percent'].iloc[-1],
+            "earning_callback": df['earning_callback_percent'].iloc[-1],
+            "buy_back": df['buy_back_percent'].iloc[-1],
+            "buy_in_callback": df['buy_in_callback_percent'].iloc[-1],
+        },
+        "additional_data": {
+            "ma_20": df['ma_20'].iloc[-1],
+            "ma_50": df['ma_50'].iloc[-1],
+            "mirror_ma_50": df['mirror_ma_50'].iloc[-1],
+            "market_trend": "Bullish" if df['ma_20'].iloc[-1] > df['ma_50'].iloc[-1] else "Bearish",
+            "status": "Recommended" if price < df['entry_price'].iloc[-1] else "Not Recommended"
+        },
+        "image": base64_image
     }
 
 
