@@ -94,7 +94,7 @@ async def root(symbol: str, interval: str, entry: float):
     df['buy_in_callback'] = df['buy_back'] + (0.1 * ((df['entry_price']) - df['buy_back']))
     df['buy_in_callback_percent'] = abs((df['buy_in_callback'] - df['buy_back']) / df['buy_back'] * 100)
 
-    print(df[['ma_20', 'ma_50', 'diff', 'mirror_ma_50', 'market_bullish', 'take_profit', 'take_profit_percent', 'buy_back',
+    print(df[['ma_20', 'ma_50', 'diff', 'mirror_ma_50', 'take_profit', 'take_profit_percent', 'buy_back',
               'buy_back_percent', 'entry_price', 'earning_callback', 'earning_callback_percent', 'buy_in_callback',
               'buy_in_callback_percent']])
 
@@ -144,7 +144,7 @@ async def root(symbol: str, interval: str, entry: float):
             "buy_back": df['buy_back_percent'].iloc[-1],
             "buy_in_callback": df['buy_in_callback_percent'].iloc[-1],
             "status": "Recommended" if price < df['entry_price'].iloc[-1] else "Not Recommended",
-            "image": base64_image
+            "image": "..."
         },
         "additional_data": {
             "ma_20": df['ma_20'].iloc[-1],
