@@ -137,18 +137,18 @@ async def root(symbol: str, interval: str, entry: float):
         "success": True,
         "message": "Request Accepted",
         "data": {
+            "market_trend": "Bullish" if df['ma_20'].iloc[-1] > df['ma_50'].iloc[-1] else "Bearish",
             "entry_price": df['entry_price'].iloc[-1],
             "take_profit": df['take_profit_percent'].iloc[-1],
             "earning_callback": df['earning_callback_percent'].iloc[-1],
             "buy_back": df['buy_back_percent'].iloc[-1],
             "buy_in_callback": df['buy_in_callback_percent'].iloc[-1],
+            "status": "Recommended" if price < df['entry_price'].iloc[-1] else "Not Recommended",
+            "image": base64_image
         },
         "additional_data": {
             "ma_20": df['ma_20'].iloc[-1],
             "ma_50": df['ma_50'].iloc[-1],
             "mirror_ma_50": df['mirror_ma_50'].iloc[-1],
-            "market_trend": "Bullish" if df['ma_20'].iloc[-1] > df['ma_50'].iloc[-1] else "Bearish",
-            "status": "Recommended" if price < df['entry_price'].iloc[-1] else "Not Recommended"
         },
-        "image": base64_image
     }
