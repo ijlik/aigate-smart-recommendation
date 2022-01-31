@@ -74,15 +74,19 @@ async def root(symbol: str, interval: str, entry: float):
     df['ma_50'] = df.rolling(window=50)['Close'].mean()
     df['diff'] = df['ma_20'] - df['ma_50']
     df['mirror_ma_50'] = df['ma_20'] + df['diff']
-    df['market_bullish'] = df['ma_20'] > df['ma_50']
+    # calculate take profit
     df['take_profit'] = df[['mirror_ma_50', 'ma_50']].max(axis=1)
-    df['buy_back'] = df[['mirror_ma_50', 'ma_50']].min(axis=1)
     df['take_profit_percent'] = abs((df['take_profit'] - price) / price * 100)
+    # calculate buy back
+    df['buy_back'] = df[['mirror_ma_50', 'ma_50']].min(axis=1)
     df['buy_back_percent'] = abs((df['buy_back'] - price) / price * 100)
+    # calculate entry price
     df['entry_price'] = df['ma_20']
+    # calculate earning callback
     df['earning_callback'] = df['take_profit'] - (0.1 * (df['take_profit'] - df['entry_price']))
-    df['buy_in_callback'] = df['buy_back'] + (0.1 * ((df['entry_price']) - df['buy_back']))
     df['earning_callback_percent'] = abs((df['earning_callback'] - df['take_profit']) / df['take_profit'] * 100)
+    # calculate buy in callback
+    df['buy_in_callback'] = df['buy_back'] + (0.1 * ((df['entry_price']) - df['buy_back']))
     df['buy_in_callback_percent'] = abs((df['buy_in_callback'] - df['buy_back']) / df['buy_back'] * 100)
 
     print(df[['ma_20', 'ma_50', 'diff', 'mirror_ma_50', 'market_bullish', 'take_profit', 'take_profit_percent', 'buy_back',
@@ -123,7 +127,6 @@ async def root(symbol: str, interval: str, entry: float):
         "success": True,
         "message": "Request Accepted",
         "data": {
-            # "is_bullish": df['market_bullish'].iloc[-1],
             "entry_price": df['entry_price'].iloc[-1],
             "take_profit": df['take_profit_percent'].iloc[-1],
             "earning_callback": df['earning_callback_percent'].iloc[-1],
@@ -139,10 +142,3 @@ async def root(symbol: str, interval: str, entry: float):
         },
         "image": base64_image
     }
-
-
-def img2base64(img_file):
-    with open(img_file, "rb") as img:
-        img_b64 = base64.b64encode(img.read())
-
-    return img_b64
