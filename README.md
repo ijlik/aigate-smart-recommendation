@@ -25,6 +25,7 @@ Output
 - Image Represent Data
 
 Sample Output
-<img src="">
+<br>
+<img src="https://raw.githubusercontent.com/ijlik/aigate-smart-recommendation/master/sampel.png">
 
 Hope this code can implement in AiGate ecosystem
