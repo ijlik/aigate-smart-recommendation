@@ -144,7 +144,7 @@ async def root(symbol: str, interval: str, entry: float):
             "buy_back": df['buy_back_percent'].iloc[-1],
             "buy_in_callback": df['buy_in_callback_percent'].iloc[-1],
             "status": "Recommended" if price < df['entry_price'].iloc[-1] else "Not Recommended",
-            "image": "..."
+            "image": base64_image
         },
         "additional_data": {
             "ma_20": df['ma_20'].iloc[-1],
