@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 import plotly.graph_objects as go
+import plotly.io as io
 import csv
+import base64
 
 app = FastAPI()
 
@@ -42,7 +44,8 @@ async def root(symbol: str, interval: str):
             str(candle[3]),
             str(candle[4]),
             str(candle[5]),
-            str(datetime.fromtimestamp(candle[6] / 1000).strftime('%d-%m-%Y')) if tick_interval == '1d' else str(datetime.fromtimestamp(candle[6] / 1000).strftime('%d-%m-%Y %H:%M')),
+            str(datetime.fromtimestamp(candle[6] / 1000).strftime('%d-%m-%Y')) if tick_interval == '1d' else str(
+                datetime.fromtimestamp(candle[6] / 1000).strftime('%d-%m-%Y %H:%M')),
             str(candle[7]),
             str(candle[8]),
             str(candle[9]),
@@ -97,9 +100,17 @@ async def root(symbol: str, interval: str):
         connectgaps=True  # override default to connect the gaps
     ))
 
-    fig.show()
+    image = io.to_image(fig, 'png')
+    base64_image = img2base64(image)
     return {
         "success": True,
         "message": "Request Accepted",
-        "data": data
+        "data": base64_image
     }
+
+
+def img2base64(img_file):
+    with open(img_file, "rb") as img:
+        img_b64 = base64.b64encode(img.read())
+
+    return img_b64
