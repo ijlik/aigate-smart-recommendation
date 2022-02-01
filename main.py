@@ -4,6 +4,8 @@ import pandas as pd
 from datetime import datetime
 import plotly.graph_objects as go
 import plotly.io as io
+import plotly.express as px
+import numpy as np
 import csv
 import base64
 
@@ -19,8 +21,8 @@ async def root():
     }
 
 
-@app.get("/get_recommendation/{symbol}/{interval}/{entry}")
-async def root(symbol: str, interval: str, entry: float):
+@app.get("/get_recommendation/ma/{symbol}/{interval}/{entry}")
+async def ma_calculate(symbol: str, interval: str, entry: float):
     # get input data
     market = symbol
     tick_interval = interval
@@ -152,3 +154,86 @@ async def root(symbol: str, interval: str, entry: float):
             "mirror_ma_50": df['mirror_ma_50'].iloc[-1],
         },
     }
+
+
+@app.get("/get_recommendation/poly/{symbol}/{interval}/{entry}")
+async def poly_calculate(symbol: str, interval: str, entry: float):
+    # get input data
+    market = symbol
+    tick_interval = interval
+    price = entry
+
+    # get realtime market data
+    url = 'https://api.binance.com/api/v3/klines?symbol=' + market + '&interval=' + tick_interval
+    data = requests.get(url).json()
+
+    # open the file in the write mode to create csv file
+    f = open('result.csv', 'w')
+    # create the csv writer
+    writer = csv.writer(f)
+    title = [
+        'OpenTime', 'Open', 'High', 'Low', 'Close', 'Volume', 'CloseTime', 'QuoteVolume', 'Trades', 'TakerBase',
+        'TakerQuote', 'Ignore'
+    ]
+    writer.writerow(title)
+    for candle in data:
+        single_data = [
+            str(datetime.fromtimestamp(candle[0] / 1000).strftime('%d-%m-%y %H:%M')),
+            str(candle[1]),
+            str(candle[2]),
+            str(candle[3]),
+            str(candle[4]),
+            str(candle[5]),
+            str(datetime.fromtimestamp(candle[6] / 1000).strftime('%d-%m-%Y')) if tick_interval == '1d' else str(
+                datetime.fromtimestamp(candle[6] / 1000).strftime('%d-%m-%Y %H:%M')),
+            str(candle[7]),
+            str(candle[8]),
+            str(candle[9]),
+            str(candle[10]),
+            str(candle[11]),
+        ]
+        writer.writerow(single_data)
+
+    f.close()
+
+    # read csv file as Data Frame
+    df = pd.read_csv('result.csv')
+
+    df['index'] = np.arange(len(df))
+    # calculate VWAP
+    df['vwap'] = df['QuoteVolume'] / df['Volume']
+
+    # calculate ma20 based on Close candle
+    df['ma_20'] = df.rolling(window=20)['vwap'].mean()
+
+    # calculate ma50 based on Close candle
+    df['ma_50'] = df.rolling(window=50)['vwap'].mean()
+
+    mymodel = np.poly1d(np.polyfit(df['index'], df['vwap'], 5))
+
+    df['poly'] = mymodel(df['index'])
+
+    fig = px.scatter(x=df['index'], y=df['vwap'])
+    # add ma20 chart line
+    fig.add_trace(go.Scatter(
+        x=df['index'],
+        y=df['poly'],
+        name='Polynomial',
+        connectgaps=True
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df['index'],
+        y=df['ma_20'],
+        name='MA-20',
+        connectgaps=True
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df['index'],
+        y=df['ma_50'],
+        name='MA-50',
+        connectgaps=True
+    ))
+
+    fig.show()
