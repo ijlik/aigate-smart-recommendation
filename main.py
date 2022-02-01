@@ -211,6 +211,8 @@ async def poly_calculate(symbol: str, interval: str, entry: float):
 
     mymodel = np.poly1d(np.polyfit(df['index'], df['vwap'], 5))
 
+    print(mymodel)
+
     df['poly'] = mymodel(df['index'])
 
     fig = px.scatter(x=df['index'], y=df['vwap'])
