@@ -212,6 +212,7 @@ async def poly_calculate(symbol: str, interval: str, entry: float):
     mymodel = np.poly1d(np.polyfit(df['index'], df['vwap'], 5))
 
     print(mymodel)
+    print(mymodel(501))
 
     df['poly'] = mymodel(df['index'])
 
