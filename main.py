@@ -163,6 +163,14 @@ async def poly_calculate(symbol: str, interval: str, entry: float):
     tick_interval = interval
     price = entry
 
+    poly_exponent = 0
+    if tick_interval == '1d':
+        poly_exponent = 10
+    elif tick_interval == '4h':
+        poly_exponent = 9
+    else:
+        poly_exponent = 11
+
     # get realtime market data
     url = 'https://api.binance.com/api/v3/klines?symbol=' + market + '&interval=' + tick_interval
     data = requests.get(url).json()
@@ -209,10 +217,11 @@ async def poly_calculate(symbol: str, interval: str, entry: float):
     # calculate ma50 based on Close candle
     df['ma_50'] = df.rolling(window=50)['vwap'].mean()
 
-    mymodel = np.poly1d(np.polyfit(df['index'], df['vwap'], 5))
+    mymodel = np.poly1d(np.polyfit(df['index'], df['vwap'], poly_exponent))
 
     print(mymodel)
     print(mymodel(501))
+    print(poly_exponent)
 
     df['poly'] = mymodel(df['index'])
 
@@ -240,3 +249,24 @@ async def poly_calculate(symbol: str, interval: str, entry: float):
     ))
 
     fig.show()
+
+    # send response
+    # return {
+    #     "success": True,
+    #     "message": "Request Accepted",
+    #     "data": {
+    #         "market_trend": "Bullish" if df['ma_20'].iloc[-1] > df['ma_50'].iloc[-1] else "Bearish",
+    #         "entry_price": df['entry_price'].iloc[-1],
+    #         "take_profit": df['take_profit_percent'].iloc[-1],
+    #         "earning_callback": df['earning_callback_percent'].iloc[-1],
+    #         "buy_back": df['buy_back_percent'].iloc[-1],
+    #         "buy_in_callback": df['buy_in_callback_percent'].iloc[-1],
+    #         "status": "Recommended" if price < df['entry_price'].iloc[-1] else "Not Recommended",
+    #         "image": base64_image
+    #     },
+    #     "additional_data": {
+    #         "ma_20": df['ma_20'].iloc[-1],
+    #         "ma_50": df['ma_50'].iloc[-1],
+    #         "mirror_ma_50": df['mirror_ma_50'].iloc[-1],
+    #     },
+    # }
