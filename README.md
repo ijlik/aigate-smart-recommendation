@@ -1,6 +1,6 @@
-<b>AiGate Smart Recommendation</b>
+<b>Smart Recommendation Feature</b>
 
-Smart recommendation to generate setting when user create robot in AiGate Dollar Cost-Averaging (DCA) or it call Compounding Strategy based on Machine Learning (Polynomial Regression), Moving Average, Mirror Moving Average and VWAP
+Smart recommendation to generate setting when user create robot in Robot Trading Dollar Cost-Averaging (DCA) (such as AiGate or RoyalQ or Ninebot) or it call Compounding Strategy based on Machine Learning (Polynomial Regression), Moving Average, Mirror Moving Average and VWAP
 
 Source Data : Binance (https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h)
 
@@ -31,4 +31,4 @@ Sample Output
 <br>
 <img src="https://raw.githubusercontent.com/ijlik/aigate-smart-recommendation/master/sample-image.png">
 
-Hope this code can implement in AiGate ecosystem
+Hope this code can implement in AiGate or RoyalQ or Ninebot ecosystem
