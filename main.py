@@ -16,7 +16,7 @@ app = FastAPI()
 async def root():
     return {
         "success": True,
-        "message": "Connection available",
+        "message": "Connection available for Main",
         "data": []
     }
 
