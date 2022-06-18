@@ -10,8 +10,6 @@ from binance import Client
 
 app = FastAPI()
 
-api_key = "bc03el1MRfSQLVLCdBTRgHF8cgZmmAxiknz1siG0FM2YfEYbbzcLuppcCgIyLN0m"
-api_secret = "5TCdDESBry2Fe6LEAdU2du4vrW9wwv48H06diB3y04W4fhHbGkinxepcBMBV00YP"
 
 @app.get("/")
 async def root():
@@ -33,7 +31,7 @@ async def poly_calculate(symbol: str, interval: str, entry: float):
 
     poly_exponent = 20
 
-    client = Client(api_key, api_secret)
+    client = Client()
     kline = client.get_historical_klines(market, tick_interval, start, end)
 
     f = open('result.csv', 'w')

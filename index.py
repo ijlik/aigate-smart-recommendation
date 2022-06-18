@@ -7,9 +7,6 @@ from binance import Client
 
 app = FastAPI()
 
-api_key = "bc03el1MRfSQLVLCdBTRgHF8cgZmmAxiknz1siG0FM2YfEYbbzcLuppcCgIyLN0m"
-api_secret = "5TCdDESBry2Fe6LEAdU2du4vrW9wwv48H06diB3y04W4fhHbGkinxepcBMBV00YP"
-
 
 @app.get("/")
 async def root():
@@ -70,7 +67,7 @@ async def srf_calculates(symbol: str, interval: str, entry: float, start: str, e
 
 
 def getDataPrice(symbol: str, interval: str, start: str, end: str):
-    client = Client(api_key, api_secret)
+    client = Client()
     kline = client.get_historical_klines(symbol, interval, start, end)
 
     f = open('result.csv', 'w')
@@ -196,7 +193,7 @@ def predictCurrentPrice(df, tick_interval, column, orde):
 
 
 def kline_data(start: str, end: str, symbol: str, interval: str):
-    client = Client(api_key, api_secret)
+    client = Client()
     kline = client.get_historical_klines(symbol, interval, start, end)
     raw_data = []
     for candle in kline:
