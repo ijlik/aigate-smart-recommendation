@@ -1,14 +1,9 @@
 from fastapi import FastAPI
-import requests
 import pandas as pd
 from datetime import datetime
-import plotly.graph_objects as go
-import plotly.io as io
-import plotly.express as px
 import numpy as np
 import csv
-import base64
-from binance import Client, ThreadedWebsocketManager, ThreadedDepthCacheManager
+from binance import Client
 
 app = FastAPI()
 
@@ -27,7 +22,7 @@ async def root():
     }
 
 
-@app.get("/get_custom_recommendation/{symbol}/{interval}/{entry}/{start}/{end}/{orde}")
+@app.get("/get_data_test/{symbol}/{interval}/{entry}/{start}/{end}/{orde}")
 async def srf_calculates(symbol: str, interval: str, entry: float, start: str, end: str, orde: int):
     price = entry
     plain_df = getDataPrice(symbol, interval, start, end)
@@ -69,44 +64,6 @@ async def srf_calculates(symbol: str, interval: str, entry: float, start: str, e
             },
 
             # "kline": kline_data(start, end, symbol, interval)
-        },
-
-    }
-
-
-@app.get("/get_recommendation/{symbol}/{interval}/{entry}")
-async def srf_calculate(symbol: str, interval: str, entry: float):
-    end = datetime.now().strftime('%d %b, %Y %H:%M:00')
-    last_year = datetime.now().year - 1
-    start = datetime.now().strftime('%d %b, ') + str(last_year) + datetime.now().strftime(' %H:%M:00')
-    orde = 20
-    price = entry
-    plain_df = getDataPrice(symbol, interval, start, end)
-    df_ma = calculateMAIndicator(plain_df)
-    df_rule = calculateMARule(df_ma, price)
-    df_result = calculateResult(df_rule)
-    df_polynomial = calculatePolyPrediction(df_result, interval, orde)
-    prediction = predictNextPrice(df_polynomial, interval, 'vwap', orde)
-    # send response
-    return {
-        "success": True,
-        "message": "Request Accepted",
-        "data": {
-            "last_candle": {
-                "date": df_polynomial['OpenTime'].iloc[-1],
-                "open": df_polynomial['Open'].iloc[-1],
-                "high": df_polynomial['High'].iloc[-1],
-                "low": df_polynomial['Low'].iloc[-1],
-                "close": df_polynomial['Close'].iloc[-1],
-                "vwap": df_polynomial['vwap'].iloc[-1],
-            },
-            "prediction_candle": {
-                "vwap": prediction,
-            },
-            "prediction_value": {
-                "vwap": True if prediction > df_polynomial['vwap'].iloc[-2] else False,
-            },
-            "kline": kline_data(start, end, symbol, interval)
         },
 
     }
